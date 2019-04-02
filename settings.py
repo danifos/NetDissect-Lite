@@ -2,7 +2,7 @@
 GPU = True                                  # running on GPU is highly suggested
 TEST_MODE = False                           # turning on the testmode means the code will run on a small dataset.
 CLEAN = True                               # set to "True" if you want to clean the temporary large files after generating result
-MODEL = 'resnet18'                          # model arch: resnet18, alexnet, resnet50, densenet161
+MODEL = 'resnet18'                          # model arch: resnet18, alexnet, resnet50, densenet161, vgg16, inception_v3
 DATASET = 'places365'                       # model trained on: places365 or imagenet
 QUANTILE = 0.005                            # the threshold used for activation
 SEG_THRESHOLD = 0.04                        # the threshold used for visualization
@@ -54,6 +54,16 @@ elif MODEL == 'resnet50':
     if DATASET == 'places365':
         MODEL_FILE = 'zoo/whole_resnet50_places365_python36.pth.tar'
         MODEL_PARALLEL = False
+elif MODEL == 'vgg16':
+    FEATURE_NAMES = ['features']
+    if DATASET == 'imagenet':
+        MODEL_FILE = '/home/user/.torch/models/vgg16-397923af.pth'
+        MODEL_PARALLEL = False
+elif MODEL == 'inception_v3':
+    FEATURE_NAMES = ['Mixed_7c']
+    if DATASET == 'imagenet':
+        MODEL_FILE = '/home/user/.torch/models/inception_v3_google-1a9a5a14.pth'
+       MODEL_PARALLEL = False
 
 if TEST_MODE:
     WORKERS = 1
