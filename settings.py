@@ -2,7 +2,7 @@
 GPU = True                                  # running on GPU is highly suggested
 TEST_MODE = False                           # turning on the testmode means the code will run on a small dataset.
 CLEAN = True                               # set to "True" if you want to clean the temporary large files after generating result
-MODEL = 'resnet18'                          # model arch: resnet18, alexnet, resnet50, densenet161, vgg16, inception_v3
+MODEL = 'alexnet'                          # model arch: resnet18, alexnet, resnet50, densenet161, vgg16, inception_v3
 DATASET = 'imagenet'                       # model trained on: places365 or imagenet
 QUANTILE = 0.005                            # the threshold used for activation
 SEG_THRESHOLD = 0.04                        # the threshold used for visualization
@@ -28,14 +28,14 @@ OUTPUT_FOLDER = "result/pytorch_"+MODEL+"_"+DATASET # result will be stored in t
 if MODEL != 'alexnet':
     DATA_DIRECTORY = 'dataset/broden1_224'
     IMG_SIZE = 224
-    INPUT_SIZE = (224,224)
     if MODEL != 'inception_v3':
-        INPUT_SIZE = (227,227)
+        INPUT_SIZE = (224,224)
     else:
         INPUT_SIZE = (299,299)
 else:
     DATA_DIRECTORY = 'dataset/broden1_227'
     IMG_SIZE = 227
+    INPUT_SIZE = (224,224)
 
 if DATASET == 'places365':
     NUM_CLASSES = 365
@@ -68,6 +68,11 @@ elif MODEL == 'inception_v3':
     FEATURE_NAMES = ['Mixed_7c']
     if DATASET == 'imagenet':
         MODEL_FILE = '/home/user/.torch/models/inception_v3_google-1a9a5a14.pth'
+        MODEL_PARALLEL = False
+elif MODEL == 'alexnet':
+    FEATURE_NAMES = ['features']
+    if DATASET == 'imagenet':
+        MODEL_FILE = '/home/user/.torch/models/alexnet-owt-4df8aa71.pth'
         MODEL_PARALLEL = False
 
 if TEST_MODE:

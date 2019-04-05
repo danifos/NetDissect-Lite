@@ -15,11 +15,11 @@ diff_quantiles() {
 	done
 }
 
-sed -i '82c \ \ \ \ BATCH_SIZE = 16' $file
+sed -i '87c \ \ \ \ BATCH_SIZE = 16' $file
 sed -i '5c MODEL = "inception_v3"' $file
 diff_quantiles
 
-sed -i '82c \ \ \ \ BATCH_SIZE = 32' $file
+sed -i '87c \ \ \ \ BATCH_SIZE = 32' $file
 sed -i '5c MODEL = "vgg16"' $file
 diff_quantiles
 
