@@ -3,7 +3,7 @@ GPU = True                                  # running on GPU is highly suggested
 TEST_MODE = False                           # turning on the testmode means the code will run on a small dataset.
 CLEAN = True                               # set to "True" if you want to clean the temporary large files after generating result
 MODEL = 'resnet18'                          # model arch: resnet18, alexnet, resnet50, densenet161, vgg16, inception_v3
-DATASET = 'places365'                       # model trained on: places365 or imagenet
+DATASET = 'imagenet'                       # model trained on: places365 or imagenet
 QUANTILE = 0.005                            # the threshold used for activation
 SEG_THRESHOLD = 0.04                        # the threshold used for visualization
 SCORE_THRESHOLD = 0.04                      # the threshold used for IoU score (in HTML file)
@@ -28,6 +28,11 @@ OUTPUT_FOLDER = "result/pytorch_"+MODEL+"_"+DATASET # result will be stored in t
 if MODEL != 'alexnet':
     DATA_DIRECTORY = 'dataset/broden1_224'
     IMG_SIZE = 224
+    INPUT_SIZE = (224,224)
+    if MODEL != 'inception_v3':
+        INPUT_SIZE = (227,227)
+    else:
+        INPUT_SIZE = (299,299)
 else:
     DATA_DIRECTORY = 'dataset/broden1_227'
     IMG_SIZE = 227
@@ -42,7 +47,7 @@ if MODEL == 'resnet18':
         MODEL_FILE = 'zoo/resnet18_places365.pth.tar'
         MODEL_PARALLEL = True
     elif DATASET == 'imagenet':
-        MODEL_FILE = None
+        MODEL_FILE = '/home/user/.torch/models/resnet18-5c106cde.pth'
         MODEL_PARALLEL = False
 elif MODEL == 'densenet161':
     FEATURE_NAMES = ['features']
@@ -63,7 +68,7 @@ elif MODEL == 'inception_v3':
     FEATURE_NAMES = ['Mixed_7c']
     if DATASET == 'imagenet':
         MODEL_FILE = '/home/user/.torch/models/inception_v3_google-1a9a5a14.pth'
-       MODEL_PARALLEL = False
+        MODEL_PARALLEL = False
 
 if TEST_MODE:
     WORKERS = 1
@@ -74,7 +79,7 @@ if TEST_MODE:
     OUTPUT_FOLDER += "_test"
 else:
     WORKERS = 12
-    BATCH_SIZE = 128
+    BATCH_SIZE = 32  # 128
     TALLY_BATCH_SIZE = 16
     TALLY_AHEAD = 4
     INDEX_FILE = 'index.csv'

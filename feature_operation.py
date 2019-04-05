@@ -1,6 +1,7 @@
 
 import os
 from torch.autograd import Variable as V
+import cv2 as cv
 from scipy.misc import imresize
 import numpy as np
 import torch
@@ -59,7 +60,14 @@ class FeatureOperator:
             input = batch[0]
             batch_size = len(input)
             print('extracting feature from batch %d / %d' % (batch_idx+1, num_batches))
-            input = torch.from_numpy(input[:, ::-1, :, :].copy())
+            # resize input
+            input = input[:, ::-1, :, :].copy()
+            shape = input.shape
+            if settings.INPUT_SIZE != shape[-2:]:
+                input = input.reshape((-1,)+shape[-2:]).transpose((1,2,0))
+                input = cv.resize(input, settings.INPUT_SIZE)
+                input = input.transpose((2,0,1)).reshape(shape[:2]+settings.INPUT_SIZE)
+            input = torch.from_numpy(input)
             input.div_(255.0 * 0.224)
             if settings.GPU:
                 input = input.cuda()
