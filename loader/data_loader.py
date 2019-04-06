@@ -675,15 +675,54 @@ def wants(what, option):
         return True
     return what in option
 
+def normalize_image_origin(rgb_image):
+    """
+    Load input image and preprocess for Caffe (original version):
+    - cast to float
+    - switch channels RGB -> BGR
+    - subtract mean
+    - transpose to channel x height x width order
+
+    This is quite the same with normalize_image_torchvision, isn't it?
+    """
+    bgr_mean = [109.5388,118.6897,124.6901]
+    img = numpy.array(rgb_image, dtype=numpy.float32)
+    if (img.ndim == 2):
+        img = numpy.repeat(img[:,:,None], 3, axis = 2)
+    img = img[:,:,::-1]
+    if bgr_mean is not None:
+        img -= bgr_mean
+    img = img.transpose((2,0,1))[::-1,:,:]
+    img /= (255.0 * 0.224)
+    return img
+
+def normalize_image_torchvision(rgb_image):
+    """
+    Load input image and preprocess for torchvision:
+    - cast to float
+    - map [0, 255] to [0, 1]
+    - subtract mean and devided by std
+    - transpose to channel x height x width order
+    """
+    rgb_mean = [0.485, 0.456, 0.406]
+    rgb_std = [0.229, 0.224, 0.225]
+    img = numpy.array(rgb_image, dtype=numpy.float32)
+    if (img.ndim == 2):
+        img = numpy.repeat(img[:,:,None], 3, axis = 2)
+    img /= 255
+    img = ((img - rgb_mean) / rgb_std).astype(np.float32)
+    img = img.transpose((2,0,1))
+    return img
+
 def normalize_image_caffe(rgb_image):
     """
-    Load input image and preprocess for Caffe:
+    Load input image and preprocess for caffe (my-faster-rcnn version):
     - cast to float
     - switch channels RGB -> BGR
     - subtract mean
     - transpose to channel x height x width order
     """
-    bgr_mean = [109.5388,118.6897,124.6901]
+    bgr_mean = [122.7717, 115.9465, 102.9801]
     img = numpy.array(rgb_image, dtype=numpy.float32)
     if (img.ndim == 2):
         img = numpy.repeat(img[:,:,None], 3, axis = 2)
@@ -693,29 +732,13 @@ def normalize_image_caffe(rgb_image):
     img = img.transpose((2,0,1))
     return img
 
-def normalize_image_torchvision(rgb_image):
-    """
-    Load input image and preprocess for torchvision:
-    - cast to float
-    - map [0, 1] to [0, 255]
-    - subtract mean and devided by std
-    - transpose to channel x height x width order
-    """
-    rgb_mean = [109.5388, 118.6897, 124.6901]
-    rgb_std = [0.229, 0.224, 0.225]
-    img = numpy.array(rgb_image, dtype=numpy.float32)
-    if (img.ndim == 2):
-        img = numpy.repeat(img[:,:,None], 3, axis = 2)
-    img = img * 255
-    img = ((img - rgb_mean) / rgb_std).astype(np.float32)
-    img = img.transpose((2,0,1))
-    return img
-
 normalize_image = None
-if settings.PRE_PROCESS == 'caffe':
-    normalize_image = normalize_image_caffe
+if settings.PRE_PROCESS == 'origin':
+    normalize_image = normalize_image_origin
 elif settings.PRE_PROCESS == 'torchvision':
     normalize_image = normalize_image_torchvision
+elif settings.PRE_PROCESS == 'caffe':
+    normalize_image = normalize_image_caffe
 else:
     print('Wrong settings.PRE_PROCESS')
 

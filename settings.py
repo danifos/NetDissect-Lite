@@ -90,5 +90,5 @@ else:
     INDEX_FILE = 'index.csv'
 
 ########### settings that may not be changed ###########
-# PRE_PROCESS: 'caffe' or 'torchvision'
+# PRE_PROCESS: origin, torchvision, caffe
 PRE_PROCESS = 'torchvision'
