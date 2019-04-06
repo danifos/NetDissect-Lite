@@ -25,7 +25,6 @@ class FeatureOperator:
             os.makedirs(os.path.join(settings.OUTPUT_FOLDER, 'image'))
         self.data = SegmentationData(settings.DATA_DIRECTORY, categories=settings.CATAGORIES)
         self.loader = SegmentationPrefetcher(self.data,categories=['image'],once=True,batch_size=settings.BATCH_SIZE)
-        self.mean = [109.5388,118.6897,124.6901]
 
     def feature_extraction(self, model=None, memmap=True):
         loader = self.loader
@@ -55,7 +54,7 @@ class FeatureOperator:
                 return wholefeatures, maxfeatures
 
         num_batches = (len(loader.indexes) + loader.batch_size - 1) / loader.batch_size
-        for batch_idx,batch in enumerate(loader.tensor_batches(bgr_mean=self.mean)):
+        for batch_idx,batch in enumerate(loader.tensor_batches()):
             del features_blobs[:]
             input = batch[0]
             batch_size = len(input)

@@ -88,3 +88,7 @@ else:
     TALLY_BATCH_SIZE = 16
     TALLY_AHEAD = 4
     INDEX_FILE = 'index.csv'
+
+########### settings that may not be changed ###########
+# PRE_PROCESS: 'caffe' or 'torchvision'
+PRE_PROCESS = 'torchvision'

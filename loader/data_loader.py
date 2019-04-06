@@ -530,16 +530,15 @@ class SegmentationPrefetcher:
             self.pool.terminate()
             raise
 
-    def fetch_tensor_batch(self, bgr_mean=None, global_labels=False):
+    def fetch_tensor_batch(self, global_labels=False):
         '''Iterator for batches as arrays of tensors.'''
         batch = self.fetch_batch()
-        return self.form_caffe_tensors(batch, bgr_mean, global_labels)
+        return self.form_caffe_tensors(batch, global_labels)
 
-    def tensor_batches(self, bgr_mean=None, global_labels=False):
+    def tensor_batches(self, global_labels=False):
         '''Returns a single batch as an array of tensors, one per category.'''
         while True:
-            batch = self.fetch_tensor_batch(
-                    bgr_mean=bgr_mean, global_labels=global_labels)
+            batch = self.fetch_tensor_batch(global_labels=global_labels)
             if batch is None:
                 raise StopIteration
             yield batch
@@ -557,8 +556,7 @@ class SegmentationPrefetcher:
             for c, cat in enumerate(self.categories):
                 if cat == 'image':
                     # Normalize image with right RGB order and mean
-                    batches[c].append(normalize_image(
-                        record[cat], bgr_mean))
+                    batches[c].append(normalize_image(record[cat]))
                 elif global_labels:
                     batches[c].append(normalize_label(
                         record[cat], default_shape, flatten=True))
@@ -677,7 +675,7 @@ def wants(what, option):
         return True
     return what in option
 
-def normalize_image(rgb_image, bgr_mean):
+def normalize_image_caffe(rgb_image):
     """
     Load input image and preprocess for Caffe:
     - cast to float
@@ -685,6 +683,7 @@ def normalize_image(rgb_image, bgr_mean):
     - subtract mean
     - transpose to channel x height x width order
     """
+    bgr_mean = [109.5388,118.6897,124.6901]
     img = numpy.array(rgb_image, dtype=numpy.float32)
     if (img.ndim == 2):
         img = numpy.repeat(img[:,:,None], 3, axis = 2)
@@ -693,6 +692,32 @@ def normalize_image(rgb_image, bgr_mean):
         img -= bgr_mean
     img = img.transpose((2,0,1))
     return img
+
+def normalize_image_torchvision(rgb_image):
+    """
+    Load input image and preprocess for torchvision:
+    - cast to float
+    - map [0, 1] to [0, 255]
+    - subtract mean and devided by std
+    - transpose to channel x height x width order
+    """
+    rgb_mean = [109.5388, 118.6897, 124.6901]
+    rgb_std = [0.229, 0.224, 0.225]
+    img = numpy.array(rgb_image, dtype=numpy.float32)
+    if (img.ndim == 2):
+        img = numpy.repeat(img[:,:,None], 3, axis = 2)
+    img = img * 255
+    img = ((img - rgb_mean) / rgb_std).astype(np.float32)
+    img = img.transpose((2,0,1))
+    return img
+
+normalize_image = None
+if settings.PRE_PROCESS == 'caffe':
+    normalize_image = normalize_image_caffe
+elif settings.PRE_PROCESS == 'torchvision':
+    normalize_image = normalize_image_torchvision
+else:
+    print('Wrong settings.PRE_PROCESS')
 
 def normalize_label(label_data, shape, flatten=False):
     """
