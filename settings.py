@@ -35,7 +35,7 @@ if MODEL != 'alexnet':
 else:
     DATA_DIRECTORY = 'dataset/broden1_227'
     IMG_SIZE = 227
-    INPUT_SIZE = (224,224)
+    INPUT_SIZE = (227,227)
 
 if DATASET == 'places365':
     NUM_CLASSES = 365

@@ -39,10 +39,15 @@ def plot():
   ymax = (ax1.get_ylim()[1], ax2.get_ylim()[1])
   for t in time[1:-1]:
     plt.plot((t,t), (0, max(ymax)), '--', color='grey')
-  
-  colors = ['red', 'blue', 'green', 'yellow']
-  for t1, t2, c in zip(time[:-1], time[1:], colors):
+
+  texts = ['feature extraction',
+           'calculating threshold',
+           'calculating IoU scores',
+           'generating results']
+  colors = ['yellow', 'blue', 'green', 'red']
+  for t1, t2, c, t in zip(time[:-1], time[1:], colors, texts):
     ax1.axvspan(t1, t2, alpha=0.5, color=c)
+    ax2.text((t1+t2)/2-30, ymax[1]/1.4, t, rotation=90, va='top', ha='center', color='black', wrap=True)
 
   for ax, ym in zip((ax1, ax2), ymax):
     ax.set_xlim((0,time[-1]))
